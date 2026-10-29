@@ -1,0 +1,36 @@
+services:
+  primary:
+    image: postgres:16
+    environment: { POSTGRES_PASSWORD: secret }
+    command: >
+      postgres -c wal_level=replica -c max_wal_senders=10
+               -c max_replication_slots=10 -c max_connections=20
+    ports: ["5432:5432"]
+    volumes:
+      - ./init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh
+      - pgprimary:/var/lib/postgresql/data
+
+  replica:
+    image: postgres:16
+    depends_on: [primary]
+    user: postgres
+    entrypoint: ["/bin/bash", "/replica-entrypoint.sh"]
+    ports: ["5433:5432"]
+    volumes:
+      - ./replica-entrypoint.sh:/replica-entrypoint.sh
+      - pgreplica:/var/lib/postgresql/data
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    depends_on: [primary]
+    environment:
+      DB_HOST: primary
+      DB_USER: postgres
+      DB_PASSWORD: secret
+      POOL_MODE: transaction
+      AUTH_TYPE: scram-sha-256
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 10
+    ports: ["6432:5432"]
+
+volumes: { pgprimary: {}, pgreplica: {} }

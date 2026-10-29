@@ -1,0 +1,13 @@
+pgbench (16.15 (Debian 16.15-1.pgdg13+2))
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 10
+query mode: simple
+number of clients: 4
+number of threads: 1
+maximum number of tries: 1
+duration: 30 s
+number of transactions actually processed: 29771
+number of failed transactions: 0 (0.000%)
+latency average = 4.029 ms
+initial connection time = 18.102 ms
+tps = 992.776683 (without initial connection time)
